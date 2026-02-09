@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { Transaction } from './entities/transaction.entity';
 import { randomUUID } from 'node:crypto';
-import { generateXml } from '../common/utils/generate-xml.util';
 import { XmlStrategies } from './enums/xml-strategies.enum';
 import { XmlComposingStrategyFactory } from './factories/xml-composing-strategy.factory';
+import { XmlManagerService } from '../common/xml-manager/xml-manager.service';
 
 @Injectable()
 export class TransactionsService {
+  constructor(private readonly xmlManagerService: XmlManagerService) {}
   transactions: Transaction[] = [];
 
   create(createTransactionDto: CreateTransactionDto) {
@@ -18,7 +19,7 @@ export class TransactionsService {
     const strategy = XmlComposingStrategyFactory.getStrategy(
       XmlStrategies.TRANSACTION,
     );
-    generateXml(transaction, strategy);
+    this.xmlManagerService.generateXml(transaction, strategy);
     return transaction;
   }
 
