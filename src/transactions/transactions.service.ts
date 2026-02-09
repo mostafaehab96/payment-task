@@ -24,10 +24,10 @@ export class TransactionsService {
   }
 
   findAll() {
-    return `This action returns all transactions`;
+    return this.transactions;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} transaction`;
+  findOne(id: string) {
+    return this.transactions.filter((t) => t.reference === id)[0];
   }
 }
