@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTransactionDto } from '../dto/create-transaction.dto';
-import { UpdateTransactionDto } from '../dto/update-transaction.dto';
-import { Transaction } from '../entities/transaction.entity';
+import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { Transaction } from './entities/transaction.entity';
 import { randomUUID } from 'node:crypto';
-import { create } from 'xmlbuilder2';
+import { generateXml } from '../common/utils/generate-xml.util';
+import { XmlStrategies } from './enums/xml-strategies.enum';
+import { XmlComposingStrategyFactory } from './factories/xml-composing-strategy.factory';
 
 @Injectable()
 export class TransactionsService {
@@ -14,19 +15,10 @@ export class TransactionsService {
     transaction.reference = randomUUID();
     transaction.date = new Date();
     this.transactions.push(transaction);
-    try {
-      const obj = {
-        TransferInfo: {
-          ...transaction,
-        },
-      };
-      const doc = create(obj);
-      const xml = doc.end({ prettyPrint: true });
-      console.log(xml);
-    } catch (error) {
-      console.error('Error converting transaction to XML:', error);
-    }
-
+    const strategy = XmlComposingStrategyFactory.getStrategy(
+      XmlStrategies.TRANSACTION,
+    );
+    generateXml(transaction, strategy);
     return transaction;
   }
 
@@ -36,13 +28,5 @@ export class TransactionsService {
 
   findOne(id: number) {
     return `This action returns a #${id} transaction`;
-  }
-
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} transaction`;
   }
 }
