@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model ClientAccount {
+  id            String        @id @default(uuid())
+  name          String
+  bankCode      String
+  accountNumber String
+  amount        Float
+  transactions  Transaction[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Transaction {
+  id                     String        @id @default(uuid())
+  reference              String        @unique
+  date                   DateTime
+  amount                 Float
+  currency               String
+  accountId              String
+  clientAccount          ClientAccount @relation(fields: [accountId], references: [id])
+  recipientBankCode      String
+  recipientAccountNumber String
+  beneficiaryName        String
+  notes                  String[]
+  paymentType            String
+  chargeDetails          String
+  transactionStatus      String
+  transactionType        String
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+}
