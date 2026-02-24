@@ -4,6 +4,7 @@ import {
   IsDateString,
   IsArray,
   IsNumber,
+  IsOptional
 } from 'class-validator';
 import { Exclude } from 'class-transformer';
 
@@ -24,6 +25,7 @@ export class CreateTransactionDto {
   recipientAccountNumber: string;
   @IsString()
   beneficiaryName: string;
+  @IsOptional()
   @IsArray()
   notes?: string[];
   @IsString()
