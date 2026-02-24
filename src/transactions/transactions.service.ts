@@ -1,21 +1,31 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { Transaction } from './entities/transaction.entity';
-import { randomUUID } from 'node:crypto';
 import { XmlStrategies } from './enums/xml-strategies.enum';
 import { XmlComposingStrategyFactory } from './factories/xml-composing-strategy.factory';
 import { XmlManagerService } from '../common/xml-manager/xml-manager.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { plainToInstance } from 'class-transformer';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TransactionsService {
-  constructor(private readonly xmlManagerService: XmlManagerService) {}
-  transactions: Transaction[] = [];
+  constructor(
+    private readonly xmlManagerService: XmlManagerService,
+    private prismaService: PrismaService,
+  ) {}
 
-  create(createTransactionDto: CreateTransactionDto) {
-    const transaction = { ...createTransactionDto } as Transaction;
-    transaction.reference = randomUUID();
-    transaction.date = new Date();
-    this.transactions.push(transaction);
+  async create(createTransactionDto: CreateTransactionDto) {
+    const account = await this.getClientAccount(createTransactionDto);
+    const data = plainToInstance(CreateTransactionDto, createTransactionDto);
+    const transactionData: Prisma.TransactionCreateInput = {
+      ...data,
+      clientAccount: { connect: { id: account.id } },
+    };
+
+    const transaction = await this.prismaService.transaction.create({
+      data: transactionData,
+    });
+
     const strategy = XmlComposingStrategyFactory.getStrategy(
       XmlStrategies.TRANSACTION,
     );
@@ -23,11 +33,23 @@ export class TransactionsService {
     return transaction;
   }
 
-  findAll() {
-    return this.transactions;
+  private async getClientAccount(createTransactionDto: CreateTransactionDto) {
+    const account = await this.prismaService.clientAccount.findFirst({
+      where: { accountNumber: createTransactionDto.accountNumber },
+    });
+    if (account === null) {
+      throw new NotFoundException(
+        "account with the provided account number doesn't exist",
+      );
+    }
+    return account;
+  }
+
+  async findAll() {
+    return this.prismaService.transaction.findMany();
   }
 
   findOne(id: string) {
-    return this.transactions.filter((t) => t.reference === id)[0];
+    return this.prismaService.transaction.findUnique({ where: { id } });
   }
 }

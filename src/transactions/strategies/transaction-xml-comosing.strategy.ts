@@ -1,8 +1,8 @@
 import { XmlComposingStrategyInterface } from '../../common/interfaces/xml-composing-strategy.interface';
-import { Transaction } from '../entities/transaction.entity';
+import { CreateTransactionDto } from '../dto/create-transaction.dto';
 
 export class TransactionXmlComposingStrategy implements XmlComposingStrategyInterface {
-  composeXml(transaction: Transaction) {
+  composeXml(transaction: CreateTransactionDto) {
     const obj = {
       PaymentRequestMessage: {
         TransferInfo: {
@@ -12,7 +12,7 @@ export class TransactionXmlComposingStrategy implements XmlComposingStrategyInte
           Currency: transaction.currency,
         },
         SenderInfo: {
-          AccountNumber: transaction.senderAccountNumber,
+          AccountNumber: transaction.accountNumber,
         },
         ReceiverInfo: {
           BankCode: transaction.recipientBankCode,
