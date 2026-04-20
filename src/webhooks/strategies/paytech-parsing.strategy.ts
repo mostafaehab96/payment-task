@@ -3,8 +3,9 @@ import { TransactionLineInterface } from '../interfaces/transaction-line.interfa
 
 export class PaytechParsingStrategy implements TransactionParsingInterface {
   parse(transactionString: string): TransactionLineInterface {
-    const date = transactionString.split(',')[0];
-    const amount = Number(transactionString.split('#')[0].split(',')[1]);
+    const dateAndAmount = transactionString.split('#')[0];
+    const date = dateAndAmount.substring(0, 8);
+    const amount = Number(dateAndAmount.substring(8).replace(',', '.'));
     const reference = transactionString.split('#')[1];
     const info = transactionString.split('#')[2].split('/');
     const infoMap = {};
