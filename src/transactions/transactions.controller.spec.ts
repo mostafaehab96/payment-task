@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { XmlManagerService } from '../common/xml-manager/xml-manager.service';
 
 describe('TransactionsController', () => {
   let controller: TransactionsController;
@@ -8,7 +10,7 @@ describe('TransactionsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TransactionsController],
-      providers: [TransactionsService],
+      providers: [TransactionsService, PrismaService, XmlManagerService],
     }).compile();
 
     controller = module.get<TransactionsController>(TransactionsController);
