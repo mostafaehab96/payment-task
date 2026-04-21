@@ -4,6 +4,16 @@
 $ npm install
 ```
 
+## DB Setup
+```bash
+docker compose up -d
+
+prisma db push
+```
+* In you .env file put this variable for the DB connection string
+* DATABASE_URL="postgresql://mostafa:3020@localhost:5433/wallet?schema=public"
+
+
 ## Compile and run the project
 
 ```bash
